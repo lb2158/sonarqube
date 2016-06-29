@@ -17,43 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@import (reference) "../variables";
-@import (reference) "../mixins";
+import { combineReducers } from 'redux';
+import users, * as fromUsers from './users/users';
+import groups, * as fromGroups from './groups/groups';
+import loading, * as fromLoading from './loading';
+import query from './query';
+import filter from './filter';
+import error from './error';
 
-.search-box {
-  position: relative;
-  font-size: 0;
-}
+export default combineReducers({
+  users,
+  groups,
+  loading,
+  query,
+  filter,
+  error
+});
 
-.search-box-input {
-  vertical-align: middle;
-  width: 250px;
-  border: none !important;
-  font-size: @baseFontSize;
-}
+export const getUsers = state => fromUsers.getUsers(state.users);
 
-.search-box-submit {
-  display: inline-block;
-  vertical-align: middle;
+export const getGroups = state => fromGroups.getGroups(state.groups);
 
-  .icon-search:before {
-    color: @secondFontColor;
-    font-size: @iconSmallFontSize;
-  }
+export const isLoading = state => fromLoading.isLoading(state.loading);
 
-  .icon-search-new {
-    position: relative;
-    top: 1px;
-  }
-}
+export const getQuery = state => state.query;
 
-.search-box-input-note {
-  position: absolute;
-  top: 0;
-  right: 0;
-  line-height: 24px;
-  background-color: #fff;
-  color: #777;
-  font-size: @smallFontSize;
-}
+export const getFilter = state => state.filter;
 
+export const getError = state => state.error;

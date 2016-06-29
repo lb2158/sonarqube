@@ -18,35 +18,33 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import md5 from 'blueimp-md5';
-import classNames from 'classnames';
+import { connect } from 'react-redux';
+import { getError } from '../store/rootReducer';
 
-export default class Avatar extends React.Component {
+class PageError extends React.Component {
   static propTypes = {
-    email: React.PropTypes.string,
-    size: React.PropTypes.number.isRequired,
-    className: React.PropTypes.string
+    message: React.PropTypes.string
   };
 
   render () {
-    const shouldShowAvatar = window.SS && window.SS.lf && window.SS.lf.enableGravatar;
-    if (!shouldShowAvatar) {
+    const { message } = this.props;
+
+    if (!message) {
       return null;
     }
 
-    const emailHash = md5.md5(this.props.email || '').trim();
-    const url = ('' + window.SS.lf.gravatarServerUrl)
-        .replace('{EMAIL_MD5}', emailHash)
-        .replace('{SIZE}', this.props.size * 2);
-
-    const className = classNames(this.props.className, 'rounded');
-
     return (
-        <img className={className}
-             src={url}
-             width={this.props.size}
-             height={this.props.size}
-             alt={this.props.email}/>
+        <div className="alert alert-danger">
+          {message}
+        </div>
     );
   }
 }
+
+const mapStateToProps = state => ({
+  message: getError(state)
+});
+
+export default connect(
+    mapStateToProps
+)(PageError);

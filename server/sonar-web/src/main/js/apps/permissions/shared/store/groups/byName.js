@@ -17,43 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@import (reference) "../variables";
-@import (reference) "../mixins";
+import keyBy from 'lodash/keyBy';
 
-.search-box {
-  position: relative;
-  font-size: 0;
-}
-
-.search-box-input {
-  vertical-align: middle;
-  width: 250px;
-  border: none !important;
-  font-size: @baseFontSize;
-}
-
-.search-box-submit {
-  display: inline-block;
-  vertical-align: middle;
-
-  .icon-search:before {
-    color: @secondFontColor;
-    font-size: @iconSmallFontSize;
+const byName = (state = {}, action = {}) => {
+  if (action.type === 'RECEIVE_HOLDERS_SUCCESS') {
+    const newGroups = keyBy(action.groups, 'name');
+    return { ...state, ...newGroups };
+  } else if (action.type === 'GRANT_PERMISSION_TO_GROUP') {
+    const newGroup = { ...state[action.groupName] };
+    newGroup.permissions = [...newGroup.permissions, action.permission];
+    return { ...state, newGroup };
+  } else if (action.type === 'REVOKE_PERMISSION_FROM_GROUP') {
+    const newGroup = { ...state[action.groupName] };
+    newGroup.permissions = newGroup.permissions
+        .filter(p => p.key !== action.permission);
+    return { ...state, newGroup };
+  } else {
+    return state;
   }
+};
 
-  .icon-search-new {
-    position: relative;
-    top: 1px;
-  }
-}
+export default byName;
 
-.search-box-input-note {
-  position: absolute;
-  top: 0;
-  right: 0;
-  line-height: 24px;
-  background-color: #fff;
-  color: #777;
-  font-size: @smallFontSize;
-}
+export const getGroups = state => state;
 
+export const getGroupByName = (state, name) => state[name];

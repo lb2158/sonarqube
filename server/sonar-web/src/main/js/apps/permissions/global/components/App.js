@@ -18,35 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import md5 from 'blueimp-md5';
-import classNames from 'classnames';
+import PageHeader from './PageHeader';
+import AllHoldersList from './AllHoldersList';
+import PageError from '../../shared/components/PageError';
+import '../../styles.css';
 
-export default class Avatar extends React.Component {
-  static propTypes = {
-    email: React.PropTypes.string,
-    size: React.PropTypes.number.isRequired,
-    className: React.PropTypes.string
-  };
+// TODO helmet
 
+export default class App extends React.Component {
   render () {
-    const shouldShowAvatar = window.SS && window.SS.lf && window.SS.lf.enableGravatar;
-    if (!shouldShowAvatar) {
-      return null;
-    }
-
-    const emailHash = md5.md5(this.props.email || '').trim();
-    const url = ('' + window.SS.lf.gravatarServerUrl)
-        .replace('{EMAIL_MD5}', emailHash)
-        .replace('{SIZE}', this.props.size * 2);
-
-    const className = classNames(this.props.className, 'rounded');
-
     return (
-        <img className={className}
-             src={url}
-             width={this.props.size}
-             height={this.props.size}
-             alt={this.props.email}/>
+        <div className="page page-limited">
+          <PageHeader/>
+          <PageError/>
+          <AllHoldersList/>
+        </div>
     );
   }
 }
