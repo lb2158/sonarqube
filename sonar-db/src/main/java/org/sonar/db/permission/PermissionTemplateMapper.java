@@ -57,15 +57,17 @@ public interface PermissionTemplateMapper {
 
   void deleteByGroupId(long groupId);
 
-  List<GroupWithPermissionDto> selectGroups(Map<String, Object> params, RowBounds rowBounds);
+  List<GroupWithPermissionDto> selectGroups(@Param("query") PermissionQuery query, @Param("templateId") long templateId, @Param("anyoneGroup") String anyoneGroup,
+    @Param("projectAdminPermission") String projectAdminPermission, RowBounds rowBounds);
 
-  List<UserWithPermissionDto> selectUsers(Map<String, Object> params, RowBounds rowBounds);
+  List<UserWithPermissionDto> selectUsers(@Param("query") PermissionQuery query, @Param("templateId") long templateId, RowBounds rowBounds);
 
   PermissionTemplateDto selectByName(String name);
 
-  int countUsers(Map<String, Object> params);
+  int countUsers(@Param("query") PermissionQuery query, @Param("templateId") long templateId);
 
-  int countGroups(Map<String, Object> parameters);
+  int countGroups(@Param("query") PermissionQuery query, @Param("templateId") long templateId, @Param("anyoneGroup") String anyoneGroup,
+    @Param("projectAdminPermission") String projectAdminPermission, @Nullable @Param("groupName") String groupName);
 
   List<PermissionTemplateDto> selectAll(@Param("nameMatch") String nameMatch);
 
