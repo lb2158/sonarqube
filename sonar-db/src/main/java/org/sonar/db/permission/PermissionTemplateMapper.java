@@ -62,6 +62,8 @@ public interface PermissionTemplateMapper {
 
   List<UserWithPermissionDto> selectUsers(@Param("query") PermissionQuery query, @Param("templateId") long templateId, RowBounds rowBounds);
 
+  List<String> selectUsers2(@Param("query") PermissionTemplateQuery query, @Param("templateId") long templateId, RowBounds rowBounds);
+
   PermissionTemplateDto selectByName(String name);
 
   int countUsers(@Param("query") PermissionQuery query, @Param("templateId") long templateId);

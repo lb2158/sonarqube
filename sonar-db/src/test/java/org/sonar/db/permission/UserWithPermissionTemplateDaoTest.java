@@ -89,9 +89,9 @@ public class UserWithPermissionTemplateDaoTest {
     dbTester.prepareDbUnit(getClass(), "users_with_permissions.xml");
 
     // user1 and user2 have permission user
-    assertThat(dao.selectUsers(
+    assertThat(dao.selectUsers2(
       dbSession,
-      PermissionQuery.builder().permission("user").membership(PermissionQuery.IN).build(),
+      PermissionTemplateQuery.builder().setPermission("user").withPermissionOnly().build(),
       TEMPLATE_ID, 0, 10)).hasSize(2);
   }
 

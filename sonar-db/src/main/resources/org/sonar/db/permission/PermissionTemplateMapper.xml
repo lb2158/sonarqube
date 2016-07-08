@@ -66,6 +66,31 @@
     WHERE group_id = #{groupId}
   </delete>
 
+  <select id="selectUsers2" parameterType="map" resultType="string">
+    SELECT u.login FROM
+    (SELECT distinct u.login as login, u.name as name
+    <include refid="usersSelection2"/>
+    ORDER BY u.name)
+  </select>
+
+  <sql id="usersSelection2">
+    FROM users u
+    LEFT JOIN perm_templates_users ptu ON ptu.user_id=u.id
+    AND ptu.template_id=#{templateId}
+    <where>
+      u.active = ${_true}
+      <if test="query.searchQueryToSql() != null">
+        AND lower(u.name) like #{query.searchQueryToSql} ESCAPE '/'
+      </if>
+      <if test="query.withPermissionOnly()">
+        and ptu.permission_reference is not null
+        <if test="query.permission!=null">
+          and ptu.permission_reference=#{query.permission}
+        </if>
+      </if>
+    </where>
+  </sql>
+
   <select id="selectUsers" parameterType="map" resultType="UserWithPermission">
     SELECT u.login as login, u.name as name, u.email, ptu.permission_reference as permission
     <include refid="usersSelection"/>
@@ -107,9 +132,9 @@
     AND ptg.template_id=#{templateId}
 
     <if test="!query.permission().equals(projectAdminPermission)">
-    UNION
-    -- Add Anyone group permission
-    SELECT
+      UNION
+      -- Add Anyone group permission
+      SELECT
       #{anyoneGroup} as name,
       NULL as description,
       (select ptg.permission_reference
@@ -119,7 +144,7 @@
         AND ptg.template_id=#{templateId}
         AND ptg.group_id IS NULL
       </where>) as permission
-    FROM groups g
+      FROM groups g
     </if>
 
     ) groups

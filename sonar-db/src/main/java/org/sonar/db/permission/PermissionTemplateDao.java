@@ -60,6 +60,10 @@ public class PermissionTemplateDao implements Dao {
     return mapper(session).selectUsers(query, templateId, new RowBounds(offset, limit));
   }
 
+  public List<String> selectUsers2(DbSession session, PermissionTemplateQuery query, Long templateId, int offset, int limit) {
+    return mapper(session).selectUsers2(query, templateId, new RowBounds(offset, limit));
+  }
+
   public int countUsers(DbSession session, PermissionQuery query, Long templateId) {
     return mapper(session).countUsers(query, templateId);
   }
