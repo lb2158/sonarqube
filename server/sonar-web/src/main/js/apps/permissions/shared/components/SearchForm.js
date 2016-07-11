@@ -67,7 +67,7 @@ export default class SearchForm extends React.Component {
               onCheck={this.handleFilter.bind(this)}/>
 
           <form
-              className="search-box spacer-top spacer-bottom"
+              className="search-box display-inline-block text-middle big-spacer-left"
               onSubmit={this.handleSubmit}>
             <button className="search-box-submit button-clean">
               <i className="icon-search"></i>
@@ -76,13 +76,14 @@ export default class SearchForm extends React.Component {
                 ref="searchInput"
                 value={query}
                 className="search-box-input"
+                style={{ width: 100 }}
                 type="search"
                 placeholder={translate('search_verb')}
                 onChange={this.handleSearch.bind(this)}/>
             {query.length > 0 && query.length < 3 && (
                 <span className="search-box-input-note">
-                {translateWithParameters('select2.tooShort', 3)}
-              </span>
+                  {translateWithParameters('select2.tooShort', 3)}
+                </span>
             )}
           </form>
         </div>
