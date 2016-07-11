@@ -59,7 +59,7 @@ class AllHoldersList extends React.Component {
   }
 
   handleToggleUser (user, permission) {
-    const hasPermission = !!user.permissions[permission];
+    const hasPermission = user.permissions.includes(permission);
 
     if (hasPermission) {
       this.props.revokePermissionFromUser(
@@ -77,7 +77,7 @@ class AllHoldersList extends React.Component {
   }
 
   handleToggleGroup (group, permission) {
-    const hasPermission = !!group.permissions[permission];
+    const hasPermission = group.permissions.includes(permission);
 
     if (hasPermission) {
       this.props.revokePermissionFromGroup(

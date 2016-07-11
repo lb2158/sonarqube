@@ -26,12 +26,12 @@ const byLogin = (state = {}, action = {}) => {
   } else if (action.type === 'GRANT_PERMISSION_TO_USER') {
     const newUser = { ...state[action.login] };
     newUser.permissions = [...newUser.permissions, action.permission];
-    return { ...state, newUser };
+    return { ...state, [action.login]: newUser };
   } else if (action.type === 'REVOKE_PERMISSION_TO_USER') {
     const newUser = { ...state[action.login] };
     newUser.permissions = newUser.permissions
-        .filter(p => p.key !== action.permission);
-    return { ...state, newUser };
+        .filter(p => p !== action.permission);
+    return { ...state, [action.login]: newUser };
   } else {
     return state;
   }

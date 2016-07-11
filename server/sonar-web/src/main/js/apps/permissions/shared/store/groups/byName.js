@@ -26,12 +26,12 @@ const byName = (state = {}, action = {}) => {
   } else if (action.type === 'GRANT_PERMISSION_TO_GROUP') {
     const newGroup = { ...state[action.groupName] };
     newGroup.permissions = [...newGroup.permissions, action.permission];
-    return { ...state, newGroup };
+    return { ...state, [action.groupName]: newGroup };
   } else if (action.type === 'REVOKE_PERMISSION_FROM_GROUP') {
     const newGroup = { ...state[action.groupName] };
     newGroup.permissions = newGroup.permissions
-        .filter(p => p.key !== action.permission);
-    return { ...state, newGroup };
+        .filter(p => p !== action.permission);
+    return { ...state, [action.groupName]: newGroup };
   } else {
     return state;
   }
