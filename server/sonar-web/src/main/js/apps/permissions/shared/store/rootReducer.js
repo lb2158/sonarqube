@@ -23,6 +23,7 @@ import groups, * as fromGroups from './groups/groups';
 import loading, * as fromLoading from './loading';
 import query from './query';
 import filter from './filter';
+import selectedPermission from './selectedPermission';
 import error from './error';
 
 export default combineReducers({
@@ -31,6 +32,7 @@ export default combineReducers({
   loading,
   query,
   filter,
+  selectedPermission,
   error
 });
 
@@ -43,5 +45,7 @@ export const isLoading = state => fromLoading.isLoading(state.loading);
 export const getQuery = state => state.query;
 
 export const getFilter = state => state.filter;
+
+export const getSelectedPermission = state => state.selectedPermission;
 
 export const getError = state => state.error;

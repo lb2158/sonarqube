@@ -25,6 +25,7 @@ export default class UserHolder extends React.Component {
   static propTypes = {
     user: React.PropTypes.object.isRequired,
     permissions: React.PropTypes.array.isRequired,
+    selectedPermission: React.PropTypes.string,
     permissionsOrder: React.PropTypes.array.isRequired,
     onToggle: React.PropTypes.func.isRequired
   };
@@ -40,8 +41,11 @@ export default class UserHolder extends React.Component {
   }
 
   render () {
+    const { selectedPermission } = this.props;
     const permissionCells = this.props.permissionsOrder.map(p => (
-        <td key={p.key} className="text-center text-middle">
+        <td key={p.key}
+            className="text-center text-middle"
+            style={{ backgroundColor: p.key === selectedPermission ? '#d9edf7' : 'transparent' }}>
           <button
               className="button-clean"
               onClick={this.handleClick.bind(this, p.key)}>

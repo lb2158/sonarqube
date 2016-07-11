@@ -28,13 +28,15 @@ import {
     grantToGroup,
     revokeFromGroup,
     updateQuery,
-    updateFilter
+    updateFilter,
+    selectPermission
 } from '../store/actions';
 import {
     getUsers,
     getGroups,
     getQuery,
-    getFilter
+    getFilter,
+    getSelectedPermission
 } from '../../shared/store/rootReducer';
 import { translate } from '../../../../helpers/l10n';
 
@@ -99,6 +101,10 @@ class AllHoldersList extends React.Component {
     }
   }
 
+  handleSelectPermission (permission) {
+    this.props.onSelectPermission(this.props.project.key, permission);
+  }
+
   render () {
     const permissions = PERMISSIONS_ORDER.map(p => ({
       key: p,
@@ -109,8 +115,10 @@ class AllHoldersList extends React.Component {
     return (
         <HoldersList
             permissions={permissions}
+            selectedPermission={this.props.selectedPermission}
             users={this.props.users}
             groups={this.props.groups}
+            onSelectPermission={this.handleSelectPermission.bind(this)}
             onToggleUser={this.handleToggleUser.bind(this)}
             onToggleGroup={this.handleToggleGroup.bind(this)}>
 
@@ -129,13 +137,16 @@ const mapStateToProps = state => ({
   users: getUsers(state),
   groups: getGroups(state),
   query: getQuery(state),
-  filter: getFilter(state)
+  filter: getFilter(state),
+  selectedPermission: getSelectedPermission(state)
 });
 
 const mapDispatchToProps = dispatch => ({
   loadHolders: projectKey => dispatch(loadHolders(projectKey)),
   onSearch: (projectKey, query) => dispatch(updateQuery(projectKey, query)),
   onFilter: (projectKey, filter) => dispatch(updateFilter(projectKey, filter)),
+  onSelectPermission: (projectKey, permission) =>
+      dispatch(selectPermission(projectKey, permission)),
   grantPermissionToUser: (projectKey, login, permission) =>
       dispatch(grantToUser(projectKey, login, permission)),
   revokePermissionFromUser: (projectKey, login, permission) =>

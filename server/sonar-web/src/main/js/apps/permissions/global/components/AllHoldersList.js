@@ -28,13 +28,15 @@ import {
     grantToGroup,
     revokeFromGroup,
     updateFilter,
-    updateQuery
+    updateQuery,
+    selectPermission
 } from '../store/actions';
 import {
     getUsers,
     getGroups,
     getQuery,
-    getFilter
+    getFilter,
+    getSelectedPermission
 } from '../../shared/store/rootReducer';
 import { translate } from '../../../../helpers/l10n';
 
@@ -82,8 +84,10 @@ class AllHoldersList extends React.Component {
     return (
         <HoldersList
             permissions={permissions}
+            selectedPermission={this.props.selectedPermission}
             users={this.props.users}
             groups={this.props.groups}
+            onSelectPermission={this.props.onSelectPermission}
             onToggleUser={this.handleToggleUser.bind(this)}
             onToggleGroup={this.handleToggleGroup.bind(this)}>
 
@@ -102,13 +106,15 @@ const mapStateToProps = state => ({
   users: getUsers(state),
   groups: getGroups(state),
   query: getQuery(state),
-  filter: getFilter(state)
+  filter: getFilter(state),
+  selectedPermission: getSelectedPermission(state)
 });
 
 const mapDispatchToProps = dispatch => ({
   loadHolders: () => dispatch(loadHolders()),
   onSearch: query => dispatch(updateQuery(query)),
   onFilter: filter => dispatch(updateFilter(filter)),
+  onSelectPermission: permission => dispatch(selectPermission(permission)),
   grantPermissionToUser: (login, permission) =>
       dispatch(grantToUser(login, permission)),
   revokePermissionFromUser: (login, permission) =>

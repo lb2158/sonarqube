@@ -131,38 +131,50 @@ export function removeProjectCreatorFromTemplate (templateName, permission) {
   return post(url, data);
 }
 
-export function getPermissionsUsersForComponent (projectKey, query = '') {
+export function getPermissionsUsersForComponent (projectKey, query = '', permission = null) {
   const url = '/api/permissions/users';
   const data = { projectKey, ps: PAGE_SIZE };
   if (query) {
     data.q = query;
   }
+  if (permission) {
+    data.permission = permission;
+  }
   return getJSON(url, data).then(r => r.users);
 }
 
-export function getPermissionsGroupsForComponent (projectKey, query = '') {
+export function getPermissionsGroupsForComponent (projectKey, query = '', permission = null) {
   const url = '/api/permissions/groups';
   const data = { projectKey, ps: PAGE_SIZE };
   if (query) {
     data.q = query;
+  }
+  if (permission) {
+    data.permission = permission;
   }
   return getJSON(url, data).then(r => r.groups);
 }
 
-export function getGlobalPermissionsUsers (query = '') {
+export function getGlobalPermissionsUsers (query = '', permission = null) {
   const url = '/api/permissions/users';
   const data = { ps: PAGE_SIZE };
   if (query) {
     data.q = query;
   }
+  if (permission) {
+    data.permission = permission;
+  }
   return getJSON(url, data).then(r => r.users);
 }
 
-export function getGlobalPermissionsGroups (query = '') {
+export function getGlobalPermissionsGroups (query = '', permission = null) {
   const url = '/api/permissions/groups';
   const data = { ps: PAGE_SIZE };
   if (query) {
     data.q = query;
+  }
+  if (permission) {
+    data.permission = permission;
   }
   return getJSON(url, data).then(r => r.groups);
 }

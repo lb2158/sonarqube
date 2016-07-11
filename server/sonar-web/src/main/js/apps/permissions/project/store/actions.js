@@ -20,24 +20,31 @@
 import * as api from '../../../../api/permissions';
 import { parseError } from '../../../code/utils';
 import { raiseError } from '../../shared/store/actions';
-import { getQuery, getFilter } from '../../shared/store/rootReducer';
+import {
+    getQuery,
+    getFilter,
+    getSelectedPermission
+} from '../../shared/store/rootReducer';
 
 export const loadHolders = projectKey => (dispatch, getState) => {
   const query = getQuery(getState());
   const filter = getFilter(getState());
+  const selectedPermission = getSelectedPermission(getState());
 
   dispatch({ type: 'REQUEST_HOLDERS', query });
 
   const requests = [];
 
   if (filter !== 'groups') {
-    requests.push(api.getPermissionsUsersForComponent(projectKey, query));
+    requests.push(api.getPermissionsUsersForComponent(projectKey, query,
+        selectedPermission));
   } else {
     requests.push(Promise.resolve([]));
   }
 
   if (filter !== 'users') {
-    requests.push(api.getPermissionsGroupsForComponent(projectKey, query));
+    requests.push(api.getPermissionsGroupsForComponent(projectKey, query,
+        selectedPermission));
   } else {
     requests.push(Promise.resolve([]));
   }
@@ -63,6 +70,16 @@ export const updateQuery = (projectKey, query = '') => dispatch => {
 
 export const updateFilter = (projectKey, filter) => dispatch => {
   dispatch({ type: 'UPDATE_FILTER', filter });
+  dispatch(loadHolders(projectKey));
+};
+
+export const selectPermission = (projectKey, permission) => (dispatch, getState) => {
+  const selectedPermission = getSelectedPermission(getState());
+  if (selectedPermission !== permission) {
+    dispatch({ type: 'SELECT_PERMISSION', permission });
+  } else {
+    dispatch({ type: 'SELECT_PERMISSION', permission: null });
+  }
   dispatch(loadHolders(projectKey));
 };
 

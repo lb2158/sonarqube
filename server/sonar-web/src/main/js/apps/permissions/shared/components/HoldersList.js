@@ -26,14 +26,27 @@ export default class HoldersList extends React.Component {
     permissions: React.PropTypes.array.isRequired,
     users: React.PropTypes.array.isRequired,
     groups: React.PropTypes.array.isRequired,
+    selectedPermission: React.PropTypes.string,
+    onSelectPermission: React.PropTypes.func.isRequired,
     onToggleUser: React.PropTypes.func.isRequired,
     onToggleGroup: React.PropTypes.func.isRequired
   };
 
+  handlePermissionClick (permission, e) {
+    e.preventDefault();
+    e.target.blur();
+    this.props.onSelectPermission(permission);
+  }
+
   renderTableHeader () {
+    const { selectedPermission } = this.props;
     const cells = this.props.permissions.map(p => (
-        <th key={p.key} className="permission-column text-center">
-          {p.name}
+        <th key={p.key}
+            className="permission-column text-center"
+            style={{ backgroundColor: p.key === selectedPermission ? '#d9edf7' : 'transparent' }}>
+          <a href="#" onClick={this.handlePermissionClick.bind(this, p.key)}>
+            {p.name}
+          </a>
           <i className="icon-help little-spacer-left"
              title={p.description}
              data-toggle="tooltip"/>
@@ -44,7 +57,7 @@ export default class HoldersList extends React.Component {
           <tr>
             <td className="bordered-bottom">
               {this.props.children}
-              </td>
+            </td>
             {cells}
           </tr>
         </thead>
@@ -57,6 +70,7 @@ export default class HoldersList extends React.Component {
             key={'user-' + user.login}
             user={user}
             permissions={user.permissions}
+            selectedPermission={this.props.selectedPermission}
             permissionsOrder={this.props.permissions}
             onToggle={this.props.onToggleUser}/>
     ));
@@ -66,6 +80,7 @@ export default class HoldersList extends React.Component {
             key={'group-' + group.id}
             group={group}
             permissions={group.permissions}
+            selectedPermission={this.props.selectedPermission}
             permissionsOrder={this.props.permissions}
             onToggle={this.props.onToggleGroup}/>
     ));
