@@ -125,6 +125,7 @@ public class PermissionTemplateQuery {
     }
 
     public Builder setPermission(@Nullable String permission) {
+      withPermissionOnly();
       this.permission = permission;
       return this;
     }

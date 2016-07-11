@@ -68,23 +68,29 @@
 
   <select id="selectUsers2" parameterType="map" resultType="string">
     SELECT u.login FROM
-    (SELECT distinct u.login as login, u.name as name
+    (SELECT DISTINCT u.login AS login, u.name AS name
     <include refid="usersSelection2"/>
-    ORDER BY u.name)
+    ORDER BY u.name) u
+  </select>
+
+  <select id="countUsers2" parameterType="map" resultType="int">
+    SELECT count(1)
+    FROM (
+    SELECT DISTINCT u.login AS login, u.name AS name
+    <include refid="usersSelection2"/>) u
   </select>
 
   <sql id="usersSelection2">
     FROM users u
-    LEFT JOIN perm_templates_users ptu ON ptu.user_id=u.id
-    AND ptu.template_id=#{templateId}
+    LEFT JOIN perm_templates_users ptu ON ptu.user_id=u.id AND ptu.template_id=#{templateId}
     <where>
       u.active = ${_true}
-      <if test="query.searchQueryToSql() != null">
+      <if test="query.getSearchQueryToSql() != null">
         AND lower(u.name) like #{query.searchQueryToSql} ESCAPE '/'
       </if>
       <if test="query.withPermissionOnly()">
         and ptu.permission_reference is not null
-        <if test="query.permission!=null">
+        <if test="query.getPermission()!=null">
           and ptu.permission_reference=#{query.permission}
         </if>
       </if>

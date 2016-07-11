@@ -19,10 +19,7 @@
  */
 package org.sonar.db.permission;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import java.util.List;
-import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -30,6 +27,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.permission.PermissionTemplateQuery.builder;
 
 public class UserWithPermissionTemplateDaoTest {
 
@@ -43,130 +41,80 @@ public class UserWithPermissionTemplateDaoTest {
   PermissionTemplateDao dao = dbTester.getDbClient().permissionTemplateDao();
 
   @Test
-  public void select_all_users() {
+  public void select_users() {
     dbTester.prepareDbUnit(getClass(), "users_with_permissions.xml");
 
-    PermissionQuery query = PermissionQuery.builder().permission("user").build();
-    List<UserWithPermissionDto> result = dao.selectUsers(dbSession, query, TEMPLATE_ID, 0, 10);
-    assertThat(result).hasSize(3);
-
-    UserWithPermissionDto user1 = result.get(0);
-    assertThat(user1.getLogin()).isEqualTo("user1");
-    assertThat(user1.getName()).isEqualTo("User1");
-    assertThat(user1.getPermission()).isNotNull();
-
-    UserWithPermissionDto user2 = result.get(1);
-    assertThat(user2.getLogin()).isEqualTo("user2");
-    assertThat(user2.getName()).isEqualTo("User2");
-    assertThat(user2.getPermission()).isNotNull();
-
-    UserWithPermissionDto user3 = result.get(2);
-    assertThat(user3.getLogin()).isEqualTo("user3");
-    assertThat(user3.getName()).isEqualTo("User3");
-    assertThat(user3.getPermission()).isNull();
+    assertThat(dao.selectUsers2(dbSession, builder().build(),
+      TEMPLATE_ID, 0, 10)).containsOnly("user1", "user2", "user3");
+    assertThat(dao.selectUsers2(dbSession, builder().withPermissionOnly().setPermission("user").build(),
+      TEMPLATE_ID, 0, 10)).containsOnly("user1", "user2");
   }
 
   @Test
-  public void return_nothing_on_unknown_template_key() {
+  public void return_no_users_on_unknown_template_key() {
     dbTester.prepareDbUnit(getClass(), "users_with_permissions.xml");
 
-    PermissionQuery query = PermissionQuery.builder().permission("user").build();
-    List<UserWithPermissionDto> result = dao.selectUsers(dbSession, query, 999L, 0, 10);
-    assertThat(result).hasSize(3);
-
-    UserWithPermissionDto user1 = result.get(0);
-    assertThat(user1.getPermission()).isNull();
-
-    UserWithPermissionDto user2 = result.get(1);
-    assertThat(user2.getPermission()).isNull();
-
-    UserWithPermissionDto user3 = result.get(2);
-    assertThat(user3.getPermission()).isNull();
+    assertThat(dao.selectUsers2(dbSession, builder().setPermission("user").withPermissionOnly().build(), 999L, 0, 10)).isEmpty();
   }
 
   @Test
   public void select_only_user_with_permission() {
     dbTester.prepareDbUnit(getClass(), "users_with_permissions.xml");
 
-    // user1 and user2 have permission user
     assertThat(dao.selectUsers2(
       dbSession,
-      PermissionTemplateQuery.builder().setPermission("user").withPermissionOnly().build(),
-      TEMPLATE_ID, 0, 10)).hasSize(2);
-  }
-
-  @Test
-  public void select_only_user_without_permission() {
-    dbTester.prepareDbUnit(getClass(), "users_with_permissions.xml");
-
-    // Only user3 has not the user permission
-    assertThat(dao.selectUsers(
-      dbSession,
-      PermissionQuery.builder().permission("user").membership(PermissionQuery.OUT).build(),
-      TEMPLATE_ID, 0, 10)).hasSize(1);
+      builder().setPermission("user").withPermissionOnly().build(),
+      TEMPLATE_ID, 0, 10)).containsOnly("user1", "user2");
   }
 
   @Test
   public void select_only_enable_users() {
     dbTester.prepareDbUnit(getClass(), "select_only_enable_users.xml");
 
-    PermissionQuery query = PermissionQuery.builder().permission("user").build();
-    List<UserWithPermissionDto> result = dao.selectUsers(dbSession, query, 999L, 0, 10);
-    assertThat(result).hasSize(3);
+    List<String> result = dao.selectUsers2(dbSession, builder().setPermission("user").build(), TEMPLATE_ID, 0, 10);
+    assertThat(result).hasSize(2);
 
     // Disabled user should not be returned
-    assertThat(Iterables.find(result, new Predicate<UserWithPermissionDto>() {
-      @Override
-      public boolean apply(@Nullable UserWithPermissionDto input) {
-        return input.getLogin().equals("disabledUser");
-      }
-    }, null)).isNull();
+    assertThat(result.stream().filter(input -> input.equals("disabledUser")).findFirst()).isEmpty();
   }
 
   @Test
   public void search_by_user_name() {
     dbTester.prepareDbUnit(getClass(), "users_with_permissions.xml");
 
-    List<UserWithPermissionDto> result = dao.selectUsers(
-      dbSession,
-      PermissionQuery.builder().permission("user").search("SEr1").build(),
+    List<String> result = dao.selectUsers2(
+      dbSession, builder().withPermissionOnly().setPermission("user").setSearchQuery("SEr1").build(),
       TEMPLATE_ID, 0, 10);
-    assertThat(result).hasSize(1);
-    assertThat(result.get(0).getName()).isEqualTo("User1");
+    assertThat(result).containsOnly("user1");
 
-    result = dao.selectUsers(
-      dbSession, PermissionQuery.builder().permission("user").search("user").build(), TEMPLATE_ID, 0, 10);
-    assertThat(result).hasSize(3);
+    result = dao.selectUsers2(
+      dbSession, builder().withPermissionOnly().setPermission("user").setSearchQuery("user").build(),
+      TEMPLATE_ID, 0, 10);
+    assertThat(result).hasSize(2);
   }
 
   @Test
   public void should_be_sorted_by_user_name() {
     dbTester.prepareDbUnit(getClass(), "users_with_permissions_should_be_sorted_by_user_name.xml");
 
-    List<UserWithPermissionDto> result = dao.selectUsers(dbSession, PermissionQuery.builder().permission("user").build(), TEMPLATE_ID, 0, 10);
-    assertThat(result).hasSize(3);
-    assertThat(result.get(0).getName()).isEqualTo("User1");
-    assertThat(result.get(1).getName()).isEqualTo("User2");
-    assertThat(result.get(2).getName()).isEqualTo("User3");
+    assertThat(dao.selectUsers2(dbSession, builder().build(), TEMPLATE_ID, 0, 10)).containsOnly("user1", "user2", "user3");
   }
 
   @Test
   public void should_be_paginated() {
     dbTester.prepareDbUnit(getClass(), "users_with_permissions.xml");
 
-    List<UserWithPermissionDto> result = dao.selectUsers(dbSession, PermissionQuery.builder().permission("user").build(), TEMPLATE_ID, 0, 2);
-    assertThat(result).hasSize(2);
-    assertThat(result.get(0).getName()).isEqualTo("User1");
-    assertThat(result.get(1).getName()).isEqualTo("User2");
+    assertThat(dao.selectUsers2(dbSession, builder().build(), TEMPLATE_ID, 0, 2)).containsOnly("user1", "user2");
+    assertThat(dao.selectUsers2(dbSession, builder().build(), TEMPLATE_ID, 1, 2)).containsOnly("user2", "user3");
+    assertThat(dao.selectUsers2(dbSession, builder().build(), TEMPLATE_ID, 2, 1)).containsOnly("user3");
+  }
 
-    result = dao.selectUsers(dbSession, PermissionQuery.builder().permission("user").build(), TEMPLATE_ID, 1, 2);
-    assertThat(result).hasSize(2);
-    assertThat(result.get(0).getName()).isEqualTo("User2");
-    assertThat(result.get(1).getName()).isEqualTo("User3");
+  @Test
+  public void count_users() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "users_with_permissions.xml");
 
-    result = dao.selectUsers(dbSession, PermissionQuery.builder().permission("user").build(), TEMPLATE_ID, 2, 1);
-    assertThat(result).hasSize(1);
-    assertThat(result.get(0).getName()).isEqualTo("User3");
+    assertThat(dao.countUsers2(dbSession, builder().build(), TEMPLATE_ID)).isEqualTo(3);
+    assertThat(dao.countUsers2(dbSession, builder().withPermissionOnly().setPermission("user").build(), TEMPLATE_ID)).isEqualTo(2);
   }
 
 }
