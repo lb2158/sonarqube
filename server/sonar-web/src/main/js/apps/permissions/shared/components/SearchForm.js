@@ -81,9 +81,12 @@ export default class SearchForm extends React.Component {
                 placeholder={translate('search_verb')}
                 onChange={this.handleSearch.bind(this)}/>
             {query.length > 0 && query.length < 3 && (
-                <span className="search-box-input-note">
-                  {translateWithParameters('select2.tooShort', 3)}
-                </span>
+                <div className="search-box-input-note tooltip bottom fade in">
+                  <div className="tooltip-inner">
+                    {translateWithParameters('select2.tooShort', 3)}
+                  </div>
+                  <div className="tooltip-arrow" style={{ left: 23 }}/>
+                </div>
             )}
           </form>
         </div>
